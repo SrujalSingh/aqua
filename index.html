@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIH26143 – DRDO Maritime Oil Spill Intelligence System</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#050B16',
+                            900: '#0A1224',
+                            850: '#0E1A34',
+                            800: '#142346',
+                        },
+                        cyan: {
+                            400: '#00D9FF',
+                            500: '#00B8D9',
+                        },
+                        electric: '#1E90FF',
+                        teal: { glow: '#00E6A8' },
+                        amber: { alert: '#FFC857' },
+                        red: { alert: '#FF4D4D' },
+                    },
+                    fontFamily: {
+                        mono: ['Space Mono', 'Consolas', 'monospace'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'radar-sweep': 'radarSweep 4s linear infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        radarSweep: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.5' },
+                            '50%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS Styles -->
+    <style>
+        html, body {
+            background-color: #050B16;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050B16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00D9FF;
+        }
+
+        .leaflet-container {
+            background: #050B16 !important;
+            font-family: 'Space Mono', monospace !important;
+            border-radius: 0.75rem;
+            z-index: 10;
+        }
+        .leaflet-tile {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) !important;
+        }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: #050B16 !important;
+            border: 1px solid #00D9FF !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+            max-width: 280px !important;
+        }
+
+        .nav-item.active {
+            background: rgba(0, 217, 255, 0.15);
+            border-left: 3px solid #00D9FF;
+            color: #ffffff;
+        }
+
+        @media screen and (max-width: 768px) {
+            .nav-item.active {
+                border-left: none;
+                border-bottom: 2px solid #00D9FF;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#050B16] text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-300">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-[#050B16]/95 backdrop-blur-xl border-b border-cyan-500/20 px-3 sm:px-4 py-2.5 sm:py-3 sticky top-0 z-50 flex items-center justify-between shadow-[0_4px_25px_rgba(0,217,255,0.08)]">
+        <div class="flex items-center space-x-2.5 sm:space-x-4">
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400 hover:bg-slate-800 focus:outline-none">
+                <i class="fa-solid fa-bars text-base"></i>
+            </button>
+            <div class="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-lg bg-slate-900 border border-cyan-400/40 shadow-[0_0_15px_rgba(0,217,255,0.3)] shrink-0">
+                <i class="fa-solid fa-radar text-cyan-400 text-base sm:text-xl animate-spin-slow"></i>
+                <div class="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-teal-400 rounded-full animate-ping"></div>
+                <div class="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-teal-400 rounded-full"></div>
+            </div>
+            <div>
+                <div class="flex items-center space-x-1.5 sm:space-x-2">
+                    <span class="text-[10px] sm:text-xs font-mono font-bold tracking-widest px-1 sm:px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">SIH26143</span>
+                    <span class="text-[9px] sm:text-xs font-mono text-slate-400 uppercase tracking-wider hidden xs:inline">DRDO / ISRO / ICG</span>
+                </div>
+                <h1 class="text-xs sm:text-base lg:text-lg font-bold font-display tracking-wide text-white flex items-center gap-1.5 sm:gap-2">
+                    MARITIME OIL SPILL MATRIX
+                    <span class="inline-flex items-center gap-1 text-[9px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
+                        <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse"></span> DEFCON 3
+                    </span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="hidden xl:flex items-center space-x-6 px-4 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs font-mono text-slate-300">
+            <div class="flex items-center space-x-2">
+                <span class="text-slate-500">UTC CLOCK:</span>
+                <span id="utc-clock" class="text-cyan-300 font-bold tracking-wider">00:00:00 UTC</span>
+            </div>
+            <div class="h-4 w-px bg-slate-800"></div>
+            <div class="flex items-center space-x-2">
+                <i class="fa-satellite text-teal-400 animate-pulse"></i>
+                <span class="text-slate-400">INSAT-3DS / SENTINEL-1B:</span>
+                <span class="text-emerald-400 font-semibold">LINK OPTIMAL (99.8%)</span>
+            </div>
+            <div class="h-4 w-px bg-slate-800"></div>
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-water text-cyan-400"></i>
+                <span class="text-slate-400">ZONE:</span>
+                <span class="text-cyan-300 font-medium">ARABIAN SEA SECTOR 4</span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <button onclick="toggleAlertModal()" class="relative p-2 sm:p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-all">
+                <i class="fa-regular fa-bell text-sm sm:text-lg"></i>
+                <span class="absolute -top-1 -right-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold text-white shadow-lg animate-bounce">3</span>
+            </button>
+            <button onclick="triggerLiveScan()" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 transition-all text-xs font-mono font-semibold shadow-[0_0_15px_rgba(0,217,255,0.15)]">
+                <i class="fa-solid fa-satellite-dish text-cyan-400 animate-spin-slow"></i>
+                <span class="hidden md:inline">START LIVE SCAN</span>
+            </button>
+            <div class="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-3 border-l border-slate-800">
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-800 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs sm:text-sm shadow-[0_0_10px_rgba(0,217,255,0.2)] shrink-0">
+                    ICG
+                </div>
+                <div class="hidden md:block text-left">
+                    <p class="text-xs font-bold text-slate-200">Cmdr. R. Sharma</p>
+                    <p class="text-[10px] font-mono text-cyan-400">Indian Coast Guard</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Command Layout -->
+    <div class="flex-1 flex flex-col lg:flex-row overflow-x-hidden min-h-0">
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex w-64 bg-[#050B16]/95 backdrop-blur-md border-r border-slate-800/80 flex-col justify-between py-4 shrink-0 select-none sticky top-[65px] h-[calc(100vh-65px)]">
+            <div class="space-y-6">
+                <div class="px-4">
+                    <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-semibold">COMMAND MODULES</p>
+                </div>
+                <nav class="space-y-1 px-2">
+                    <button onclick="switchTab('matrix')" id="nav-matrix" class="nav-item active w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium transition-all group">
+                        <i class="fa-solid fa-chart-line text-base text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-slate-200">Intelligence Matrix</span>
+                    </button>
+                    <button onclick="switchTab('monitoring')" id="nav-monitoring" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-globe text-base text-teal-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Live Ocean Monitoring</span>
+                    </button>
+                    <button onclick="switchTab('sar')" id="nav-sar" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-satellite text-base text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                        <span>SAR Oil Detection</span>
+                    </button>
+                    <button onclick="switchTab('correlation')" id="nav-correlation" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-ship text-base text-amber-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Vessel AIS Correlation</span>
+                    </button>
+                    <button onclick="switchTab('timeline')" id="nav-timeline" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-timeline text-base text-purple-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Incident Chain</span>
+                    </button>
+                    <button onclick="switchTab('drift')" id="nav-drift" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-wind text-base text-sky-400 group-hover:scale-110 transition-transform"></i>
+                        <span>AI Drift Prediction</span>
+                    </button>
+                    <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-chart-pie text-base text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                        <span>Defense Analytics</span>
+                    </button>
+                    <button onclick="switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
+                        <i class="fa-solid fa-file-shield text-base text-amber-300 group-hover:scale-110 transition-transform"></i>
+                        <span>Evidence Exporter</span>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto overflow-x-hidden w-full max-w-full space-y-4 sm:space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-950 via-[#061227] to-slate-950 border border-cyan-500/30 p-4 sm:p-6 shadow-[0_0_35px_rgba(0,217,255,0.12)]">
+                <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6">
+                    <div class="space-y-2.5 sm:space-y-3 max-w-2xl text-left w-full">
+                        <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[10px] sm:text-xs font-mono">
+                            <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+                            <span class="font-semibold uppercase tracking-widest">DRDO & Indian Coast Guard Command Briefing</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold font-display text-white tracking-wide leading-tight">
+                            AI MARITIME INTELLIGENCE PLATFORM
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
+                            Real-time ocean oil spill monitoring using Synthetic Aperture Radar (SAR) imagery (Sentinel-1B & INSAT-3DS) combined with AIS ship movement correlation for offender identification and legal evidence generation.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
+                            <button onclick="triggerLiveScan()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-mono font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(0,217,255,0.4)] flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-play"></i>
+                                <span>START MONITORING</span>
+                            </button>
+                            <button onclick="openReportModal()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-slate-900/90 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 transition-all font-mono font-semibold text-xs tracking-wider uppercase flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-microchip"></i>
+                                <span>ANALYZE INCIDENT</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative w-32 h-32 sm:w-40 sm:h-40 shrink-0 flex items-center justify-center mt-2 lg:mt-0">
+                        <div class="absolute inset-0 rounded-full border border-cyan-500/30 animate-pulse"></div>
+                        <div class="absolute inset-2 sm:inset-3 rounded-full border border-cyan-400/20"></div>
+                        <div class="absolute inset-5 sm:inset-6 rounded-full border border-slate-700"></div>
+                        <div class="absolute w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden">
+                            <div class="w-full h-full animate-radar-sweep bg-[conic-gradient(from_0deg,transparent_0_300deg,rgba(0,217,255,0.5)_360deg)] rounded-full"></div>
+                        </div>
+                        <div class="relative z-20 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-cyan-400 rounded-full shadow-[0_0_12px_#00D9FF]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+                <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-rose-500/30 shadow-[0_0_15px_rgba(255,77,77,0.12)]">
+                    <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">Active Spills</span>
+                    <div class="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">4</div>
+                    <p class="text-[9px] sm:text-[10px] font-mono text-rose-400 mt-1">2 Critical</p>
+                </div>
+                <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,217,255,0.12)]">
+                    <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">Area Monitored</span>
+                    <div class="text-lg sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">1.42M km²</div>
+                    <p class="text-[9px] sm:text-[10px] font-mono text-emerald-400 mt-1">100% Coverage</p>
+                </div>
+                <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-blue-500/30 shadow-[0_0_15px_rgba(30,144,255,0.12)]">
+                    <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">Ships Tracked</span>
+                    <div class="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">3,842</div>
+                    <p class="text-[9px] sm:text-[10px] font-mono text-blue-400 mt-1">142 Tankers</p>
+                </div>
+                <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-amber-500/30 shadow-[0_0_15px_rgba(255,200,87,0.12)]">
+                    <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">High-Risk Ships</span>
+                    <div class="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">12</div>
+                    <p class="text-[9px] sm:text-[10px] font-mono text-rose-400 mt-1">3 Flagged Near Spill</p>
+                </div>
+                <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-emerald-500/30 shadow-[0_0_15px_rgba(0,230,168,0.12)]">
+                    <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">AI Accuracy</span>
+                    <div class="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">98.4%</div>
+                    <p class="text-[9px] sm:text-[10px] font-mono text-emerald-400 mt-1">UNet SAR Engine</p>
+                </div>
+                <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-teal-500/30 shadow-[0_0_15px_rgba(0,230,168,0.12)]">
+                    <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">Time Saved</span>
+                    <div class="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">-78%</div>
+                    <p class="text-[9px] sm:text-[10px] font-mono text-slate-500 mt-1">Avg 12m to ID</p>
+                </div>
+            </div>
+
+            <!-- Ocean Command Map -->
+            <div class="relative rounded-2xl bg-slate-950/90 border border-cyan-500/30 overflow-hidden shadow-[0_0_30px_rgba(0,217,255,0.15)] flex flex-col h-[400px] sm:h-[500px] lg:h-[650px]">
+                <div class="bg-[#050B16]/95 border-b border-cyan-500/20 px-3 sm:px-4 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 z-20">
+                    <h3 class="text-xs sm:text-sm font-bold font-mono text-white tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-map-location-dot text-cyan-400"></i> MAIN COMMAND SURVEILLANCE MAP
+                    </h3>
+                    <button onclick="centerMapOnGoa()" class="px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700 text-xs">Reset View</button>
+                </div>
+                <div id="command-map" class="w-full h-full relative z-10 bg-[#050B16]"></div>
+            </div>
+
+            <!-- Vessel Correlation -->
+            <div class="rounded-2xl bg-slate-950/90 border border-cyan-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(0,217,255,0.1)]">
+                <h3 class="text-base sm:text-lg font-bold font-display text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-ship text-amber-400"></i> AI SUSPECT VESSEL CORRELATION MATRIX
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="rounded-xl bg-slate-900/90 border-2 border-rose-500/80 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-base font-mono font-bold text-white">MV OCEAN PATRIOT</h4>
+                                <p class="text-xs font-mono text-slate-400">IMO: 9482103 | VLCC Tanker</p>
+                            </div>
+                            <span class="text-rose-400 font-bold font-mono text-lg">95%</span>
+                        </div>
+                        <p class="text-xs font-mono text-rose-300 mt-2">Speed drop from 16.4 to 3.1 kts at 02:14 UTC</p>
+                        <button onclick="dispatchCoastGuard('MV OCEAN PATRIOT')" class="mt-3 w-full py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-lg">DISPATCH INTERCEPT</button>
+                    </div>
+                    <div class="rounded-xl bg-slate-900/90 border border-amber-500/50 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-base font-mono font-bold text-white">MT MALABAR STAR</h4>
+                                <p class="text-xs font-mono text-slate-400">IMO: 9320194 | Chemical Tanker</p>
+                            </div>
+                            <span class="text-amber-400 font-bold font-mono text-lg">82%</span>
+                        </div>
+                        <p class="text-xs font-mono text-amber-300 mt-2">Unscheduled tank washing pattern</p>
+                        <button onclick="dispatchCoastGuard('MT MALABAR STAR')" class="mt-3 w-full py-2 bg-amber-500/20 text-amber-300 font-bold text-xs rounded-lg border border-amber-500/40">MONITOR VESSEL</button>
+                    </div>
+                    <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-base font-mono font-bold text-white">SS ARABIAN GULF</h4>
+                                <p class="text-xs font-mono text-slate-400">IMO: 9193882 | Crude Carrier</p>
+                            </div>
+                            <span class="text-cyan-400 font-bold font-mono text-lg">41%</span>
+                        </div>
+                        <p class="text-xs font-mono text-slate-400 mt-2">Constant transit speed maintained</p>
+                        <button onclick="dispatchCoastGuard('SS ARABIAN GULF')" class="mt-3 w-full py-2 bg-slate-800 text-slate-300 text-xs rounded-lg">LOG AIS HISTORY</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="scan-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-[#050B16] border-2 border-cyan-400 rounded-2xl max-w-lg w-full p-6 font-mono text-xs">
+            <h3 class="text-base font-bold text-white mb-2">LIVE RADAR SCAN IN PROGRESS</h3>
+            <p class="text-slate-300">Acquiring Sentinel-1B SAR C-Band Imagery...</p>
+            <button onclick="closeScanModal()" class="mt-4 px-4 py-2 bg-slate-800 text-white rounded">Close</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const utcString = now.toUTCString().split(' ')[4] + ' UTC';
+            const clockEl = document.getElementById('utc-clock');
+            if (clockEl) clockEl.innerText = utcString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let map;
+        function initMap() {
+            map = L.map('command-map', { center: [15.421, 71.892], zoom: 7, zoomControl: false });
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
+            
+            L.polygon([[15.45, 71.85], [15.48, 71.92], [15.42, 71.98], [15.38, 71.94]], {
+                color: '#FF4D4D', fillColor: '#FF4D4D', fillOpacity: 0.55, weight: 3
+            }).addTo(map).bindPopup('SPILL-2026-089-AS: 18.4 km²');
+
+            const suspectIcon = L.divIcon({
+                html: '<i class="fa-solid fa-ship text-rose-400 text-xl"></i>',
+                iconSize: [24, 24]
+            });
+            L.marker([15.440, 71.870], { icon: suspectIcon }).addTo(map).bindPopup('MV OCEAN PATRIOT (95% Match)');
+        }
+
+        function centerMapOnGoa() { if (map) map.setView([15.421, 71.892], 8); }
+        function triggerLiveScan() { document.getElementById('scan-modal').classList.remove('hidden'); }
+        function closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); }
+        function openReportModal() { alert('Generating Defense PDF Briefing...'); }
+        function dispatchCoastGuard(name) { alert('Coast Guard Intercept notice dispatched for ' + name); }
+        function toggleMobileMenu() {}
+        function switchTab(t) {}
+
+        window.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>
