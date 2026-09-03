@@ -126,6 +126,13 @@
                 border-bottom: 2px solid #00D9FF;
             }
         }
+
+        .module-section {
+            transition: all 0.3s ease-in-out;
+        }
+        .module-section.hidden-view {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-[#050B16] text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-300">
@@ -206,7 +213,7 @@
                 <nav class="space-y-1 px-2">
                     <button onclick="switchTab('matrix')" id="nav-matrix" class="nav-item active w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium transition-all group">
                         <i class="fa-solid fa-chart-line text-base text-cyan-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-slate-200">Intelligence Matrix</span>
+                        <span class="text-slate-200">Intelligence Matrix (All)</span>
                     </button>
                     <button onclick="switchTab('monitoring')" id="nav-monitoring" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-white transition-all group">
                         <i class="fa-solid fa-globe text-base text-teal-400 group-hover:scale-110 transition-transform"></i>
@@ -279,8 +286,17 @@
                 </div>
             </div>
 
+            <!-- Module Filter Active View Badge -->
+            <div id="view-filter-badge" class="px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-400/30 font-mono text-xs text-cyan-300 flex items-center justify-between">
+                <span class="flex items-center space-x-2">
+                    <i class="fa-solid fa-layer-group text-cyan-400"></i>
+                    <span id="active-view-label">VIEWING: FULL INTELLIGENCE MATRIX (ALL MODULES)</span>
+                </span>
+                <button onclick="switchTab('matrix')" class="text-slate-400 hover:text-white text-[11px] underline">SHOW ALL MODULES</button>
+            </div>
+
             <!-- KPIs -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div id="sec-kpis" class="module-section grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
                 <div class="p-3 sm:p-4 rounded-xl bg-slate-950/80 border border-rose-500/30 shadow-[0_0_15px_rgba(255,77,77,0.12)]">
                     <span class="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-semibold">Active Spills</span>
                     <div class="text-xl sm:text-2xl font-bold font-mono text-white tracking-tight mt-1">4</div>
@@ -314,7 +330,7 @@
             </div>
 
             <!-- Ocean Command Map -->
-            <div class="relative rounded-2xl bg-slate-950/90 border border-cyan-500/30 overflow-hidden shadow-[0_0_30px_rgba(0,217,255,0.15)] flex flex-col h-[400px] sm:h-[500px] lg:h-[650px]">
+            <div id="sec-monitoring" class="module-section relative rounded-2xl bg-slate-950/90 border border-cyan-500/30 overflow-hidden shadow-[0_0_30px_rgba(0,217,255,0.15)] flex flex-col h-[400px] sm:h-[500px] lg:h-[650px]">
                 <div class="bg-[#050B16]/95 border-b border-cyan-500/20 px-3 sm:px-4 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 z-20">
                     <h3 class="text-xs sm:text-sm font-bold font-mono text-white tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-map-location-dot text-cyan-400"></i> MAIN COMMAND SURVEILLANCE MAP
@@ -325,7 +341,7 @@
             </div>
 
             <!-- Vessel Correlation -->
-            <div class="rounded-2xl bg-slate-950/90 border border-cyan-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(0,217,255,0.1)]">
+            <div id="sec-correlation" class="module-section rounded-2xl bg-slate-950/90 border border-cyan-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(0,217,255,0.1)]">
                 <h3 class="text-base sm:text-lg font-bold font-display text-white mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-ship text-amber-400"></i> AI SUSPECT VESSEL CORRELATION MATRIX
                 </h3>
@@ -363,6 +379,113 @@
                         <p class="text-xs font-mono text-slate-400 mt-2">Constant transit speed maintained</p>
                         <button onclick="dispatchCoastGuard('SS ARABIAN GULF')" class="mt-3 w-full py-2 bg-slate-800 text-slate-300 text-xs rounded-lg">LOG AIS HISTORY</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Incident Chain Timeline -->
+            <div id="sec-timeline" class="module-section rounded-2xl bg-slate-950/90 border border-purple-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(168,85,247,0.1)]">
+                <h3 class="text-base sm:text-lg font-bold font-display text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-timeline text-purple-400"></i> AUTOMATED CHAIN OF CUSTODY TIMELINE
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 font-mono text-xs">
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-cyan-400 font-bold text-[10px]">02:15 UTC</span>
+                        <p class="text-white font-bold mt-1">Satellite Pass</p>
+                        <p class="text-[10px] text-slate-400">Sentinel-1B SAR C-Band</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-purple-400 font-bold text-[10px]">02:17 UTC</span>
+                        <p class="text-white font-bold mt-1">AI Segmentation</p>
+                        <p class="text-[10px] text-slate-400">UNet 18.4km² Slick</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-amber-400 font-bold text-[10px]">02:18 UTC</span>
+                        <p class="text-white font-bold mt-1">AIS Correlation</p>
+                        <p class="text-[10px] text-slate-400">IMO 9482103 Matched</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-sky-400 font-bold text-[10px]">02:19 UTC</span>
+                        <p class="text-white font-bold mt-1">Drift Forecast</p>
+                        <p class="text-[10px] text-slate-400">220° SW Trajectory</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-rose-400 font-bold text-[10px]">02:20 UTC</span>
+                        <p class="text-white font-bold mt-1">Coast Guard Alert</p>
+                        <p class="text-[10px] text-rose-300">INS Sarathi Dispatched</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drift Prediction -->
+            <div id="sec-drift" class="module-section rounded-2xl bg-slate-950/90 border border-sky-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(56,189,248,0.1)]">
+                <h3 class="text-base sm:text-lg font-bold font-display text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-wind text-sky-400"></i> HYDRODYNAMIC DRIFT PREDICTION
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs">
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 text-[10px]">WIND VECTOR</span>
+                        <p class="text-cyan-400 font-bold text-sm">14 kts @ 220° SW</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 text-[10px]">SURFACE CURRENT</span>
+                        <p class="text-teal-400 font-bold text-sm">2.4 kts SW</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="text-slate-400 text-[10px]">COASTAL IMPACT ETA</span>
+                        <p class="text-rose-400 font-bold text-sm">18h 40m (Goa Coast)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics -->
+            <div id="sec-analytics" class="module-section rounded-2xl bg-slate-950/90 border border-emerald-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                <h3 class="text-base sm:text-lg font-bold font-display text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-emerald-400"></i> DEFENSE ANALYTICS & TRENDS
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <p class="text-xs font-mono text-slate-300 font-bold mb-2">Spill Detection Precision Rate</p>
+                        <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
+                            <div class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[98%]"></div>
+                        </div>
+                        <p class="text-[10px] font-mono text-emerald-400 mt-1">98.4% Neural Net Validation</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <p class="text-xs font-mono text-slate-300 font-bold mb-2">Offender Correlation Confidence</p>
+                        <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
+                            <div class="bg-gradient-to-r from-amber-500 to-rose-500 h-full w-[95%]"></div>
+                        </div>
+                        <p class="text-[10px] font-mono text-rose-400 mt-1">95.0% MV Ocean Patriot Match</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div id="sec-reports" class="module-section rounded-2xl bg-slate-950/90 border border-amber-500/30 p-4 sm:p-5 shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+                <h3 class="text-base sm:text-lg font-bold font-display text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-file-shield text-amber-400"></i> EVIDENCE BRIEF EXPORTER
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-mono text-xs">
+                    <button onclick="openReportModal()" class="p-3 bg-slate-900 hover:bg-slate-800 rounded-xl border border-cyan-500/30 text-cyan-300 text-left">
+                        <i class="fa-solid fa-file-pdf text-lg text-cyan-400 mb-1"></i>
+                        <p class="font-bold">PDF Briefing</p>
+                        <span class="text-[10px] text-slate-400">DRDO/ICG HQ</span>
+                    </button>
+                    <button onclick="openReportModal()" class="p-3 bg-slate-900 hover:bg-slate-800 rounded-xl border border-rose-500/30 text-rose-300 text-left">
+                        <i class="fa-solid fa-gavel text-lg text-rose-400 mb-1"></i>
+                        <p class="font-bold">IMO Docket</p>
+                        <span class="text-[10px] text-slate-400">Prosecution Docket</span>
+                    </button>
+                    <button onclick="openReportModal()" class="p-3 bg-slate-900 hover:bg-slate-800 rounded-xl border border-amber-500/30 text-amber-300 text-left">
+                        <i class="fa-solid fa-ship text-lg text-amber-400 mb-1"></i>
+                        <p class="font-bold">Intercept Brief</p>
+                        <span class="text-[10px] text-slate-400">Boarding Party</span>
+                    </button>
+                    <button onclick="openReportModal()" class="p-3 bg-slate-900 hover:bg-slate-800 rounded-xl border border-emerald-500/30 text-emerald-300 text-left">
+                        <i class="fa-solid fa-leaf text-lg text-emerald-400 mb-1"></i>
+                        <p class="font-bold">Impact Assessment</p>
+                        <span class="text-[10px] text-slate-400">Bio Zone Impact</span>
+                    </button>
                 </div>
             </div>
         </main>
@@ -409,8 +532,32 @@
         function closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); }
         function openReportModal() { alert('Generating Defense PDF Briefing...'); }
         function dispatchCoastGuard(name) { alert('Coast Guard Intercept notice dispatched for ' + name); }
-        function toggleMobileMenu() {}
-        function switchTab(t) {}
+
+        // Dynamic Tab Switching Module Filter
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const activeLabel = document.getElementById('active-view-label');
+            const sections = document.querySelectorAll('.module-section');
+
+            if (tabId === 'matrix') {
+                sections.forEach(sec => sec.classList.remove('hidden-view'));
+                if (activeLabel) activeLabel.innerText = 'VIEWING: FULL INTELLIGENCE MATRIX (ALL MODULES)';
+            } else {
+                sections.forEach(sec => sec.classList.add('hidden-view'));
+                const targetSec = document.getElementById('sec-' + tabId);
+                if (targetSec) targetSec.classList.remove('hidden-view');
+                if (activeLabel) activeLabel.innerText = 'FILTERED VIEW: ' + tabId.toUpperCase() + ' MODULE';
+                
+                // Keep KPIs visible on filtered views for context
+                const kpisSec = document.getElementById('sec-kpis');
+                if (kpisSec) kpisSec.classList.remove('hidden-view');
+            }
+
+            if (map) setTimeout(() => map.invalidateSize(), 300);
+        }
 
         window.addEventListener('DOMContentLoaded', initMap);
     </script>
