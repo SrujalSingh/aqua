@@ -140,9 +140,11 @@
     <!-- Top Navigation Bar -->
     <header class="bg-[#050B16]/95 backdrop-blur-xl border-b border-cyan-500/20 px-3 sm:px-4 py-2.5 sm:py-3 sticky top-0 z-50 flex items-center justify-between shadow-[0_4px_25px_rgba(0,217,255,0.08)]">
         <div class="flex items-center space-x-2.5 sm:space-x-4">
+            <!-- Mobile Menu Hamburger Button -->
             <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400 hover:bg-slate-800 focus:outline-none">
                 <i class="fa-solid fa-bars text-base"></i>
             </button>
+
             <div class="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-lg bg-slate-900 border border-cyan-400/40 shadow-[0_0_15px_rgba(0,217,255,0.3)] shrink-0">
                 <i class="fa-solid fa-radar text-cyan-400 text-base sm:text-xl animate-spin-slow"></i>
                 <div class="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-teal-400 rounded-full animate-ping"></div>
@@ -182,14 +184,17 @@
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
-            <button onclick="toggleAlertModal()" class="relative p-2 sm:p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-all">
+            <button onclick="openReportModal()" class="relative p-2 sm:p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-all">
                 <i class="fa-regular fa-bell text-sm sm:text-lg"></i>
                 <span class="absolute -top-1 -right-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold text-white shadow-lg animate-bounce">3</span>
             </button>
+
+            <!-- Start Live Scan Top Button -->
             <button onclick="triggerLiveScan()" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 transition-all text-xs font-mono font-semibold shadow-[0_0_15px_rgba(0,217,255,0.15)]">
                 <i class="fa-solid fa-satellite-dish text-cyan-400 animate-spin-slow"></i>
                 <span class="hidden md:inline">START LIVE SCAN</span>
             </button>
+
             <div class="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-3 border-l border-slate-800">
                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-800 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs sm:text-sm shadow-[0_0_10px_rgba(0,217,255,0.2)] shrink-0">
                     ICG
@@ -201,6 +206,51 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Drawer Overlay (Slides out when menu hamburger is tapped) -->
+    <div id="mobile-nav-drawer" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[90] hidden lg:hidden flex flex-col p-5 font-mono">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+            <span class="text-sm font-bold text-white tracking-widest flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-cyan-400"></i> MARITIME COMMAND MENU
+            </span>
+            <button onclick="toggleMobileMenu()" class="p-2 rounded-lg bg-slate-900 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="space-y-2.5 overflow-y-auto flex-1">
+            <button onclick="switchTab('matrix')" class="w-full text-left px-4 py-3 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center space-x-3">
+                <i class="fa-solid fa-chart-line text-cyan-400 text-base"></i> <span>Intelligence Matrix (All)</span>
+            </button>
+            <button onclick="switchTab('monitoring')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-globe text-teal-400 text-base"></i> <span>Live Ocean Monitoring Map</span>
+            </button>
+            <button onclick="switchTab('sar')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-satellite text-cyan-400 text-base"></i> <span>SAR Oil Spill Detection</span>
+            </button>
+            <button onclick="switchTab('correlation')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-ship text-amber-400 text-base"></i> <span>AI Vessel AIS Correlation</span>
+            </button>
+            <button onclick="switchTab('timeline')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-timeline text-purple-400 text-base"></i> <span>Incident Chain of Custody</span>
+            </button>
+            <button onclick="switchTab('drift')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-wind text-sky-400 text-base"></i> <span>AI Drift Prediction</span>
+            </button>
+            <button onclick="switchTab('analytics')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-chart-pie text-emerald-400 text-base"></i> <span>Defense Analytics</span>
+            </button>
+            <button onclick="switchTab('reports')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 text-xs flex items-center space-x-3">
+                <i class="fa-solid fa-file-shield text-amber-300 text-base"></i> <span>Evidence Brief Generator</span>
+            </button>
+        </nav>
+
+        <div class="pt-4 border-t border-slate-800 space-y-2">
+            <button onclick="triggerLiveScan()" class="w-full py-3 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs flex items-center justify-center space-x-2 shadow-[0_0_15px_#00D9FF]">
+                <i class="fa-solid fa-play"></i> <span>START MONITORING SCAN</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Main Command Layout -->
     <div class="flex-1 flex flex-col lg:flex-row overflow-x-hidden min-h-0">
@@ -263,17 +313,23 @@
                         <p class="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
                             Real-time ocean oil spill monitoring using Synthetic Aperture Radar (SAR) imagery (Sentinel-1B & INSAT-3DS) combined with AIS ship movement correlation for offender identification and legal evidence generation.
                         </p>
+
+                        <!-- Hero Action Buttons -->
                         <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
+                            <!-- START MONITORING BUTTON -->
                             <button onclick="triggerLiveScan()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-mono font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(0,217,255,0.4)] flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-play"></i>
                                 <span>START MONITORING</span>
                             </button>
+
+                            <!-- ANALYZE NEW INCIDENT BUTTON -->
                             <button onclick="openReportModal()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-slate-900/90 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 transition-all font-mono font-semibold text-xs tracking-wider uppercase flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-microchip"></i>
                                 <span>ANALYZE INCIDENT</span>
                             </button>
                         </div>
                     </div>
+
                     <div class="relative w-32 h-32 sm:w-40 sm:h-40 shrink-0 flex items-center justify-center mt-2 lg:mt-0">
                         <div class="absolute inset-0 rounded-full border border-cyan-500/30 animate-pulse"></div>
                         <div class="absolute inset-2 sm:inset-3 rounded-full border border-cyan-400/20"></div>
@@ -491,17 +547,87 @@
         </main>
     </div>
 
-    <!-- Modals -->
-    <div id="scan-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-[#050B16] border-2 border-cyan-400 rounded-2xl max-w-lg w-full p-6 font-mono text-xs">
-            <h3 class="text-base font-bold text-white mb-2">LIVE RADAR SCAN IN PROGRESS</h3>
-            <p class="text-slate-300">Acquiring Sentinel-1B SAR C-Band Imagery...</p>
-            <button onclick="closeScanModal()" class="mt-4 px-4 py-2 bg-slate-800 text-white rounded">Close</button>
+    <!-- Live Scan Simulation Modal Window -->
+    <div id="scan-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-[#050B16] border-2 border-cyan-400 rounded-2xl max-w-lg w-[94vw] sm:w-full p-4 sm:p-6 relative shadow-[0_0_50px_rgba(0,217,255,0.4)] font-mono max-h-[90vh] overflow-y-auto">
+            <button onclick="closeScanModal()" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-white text-base sm:text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 text-cyan-400 mb-3 sm:mb-4">
+                <i class="fa-solid fa-satellite-dish text-xl sm:text-2xl animate-spin-slow"></i>
+                <div>
+                    <h3 class="text-sm sm:text-base font-bold text-white tracking-wider">LIVE TACTICAL RADAR SCAN</h3>
+                    <p class="text-[10px] sm:text-xs text-slate-400">INSAT-3DS & Sentinel-1B SAR Pipeline</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 sm:space-y-4 my-4 sm:my-6">
+                <div class="space-y-1">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-300 text-[11px] sm:text-xs truncate max-w-[220px]" id="scan-step-label">Acquiring SAR Tiles...</span>
+                        <span class="text-cyan-400 font-bold" id="scan-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2.5 sm:h-3 overflow-hidden border border-slate-800">
+                        <div id="scan-progress-bar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-full w-[0%] transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <div id="scan-terminal" class="h-32 rounded-lg bg-slate-950 border border-slate-800 p-2.5 sm:p-3 overflow-y-auto text-[10px] sm:text-[11px] text-slate-300 space-y-1 font-mono">
+                    <p class="text-cyan-400">[02:22:01 UTC] Connecting to ISRO Ground Station...</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="closeScanModal()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-xs font-bold hover:bg-cyan-500/30 transition-all">
+                    CLOSE RADAR FEED
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Intelligence Report Preview Modal Window -->
+    <div id="report-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-[#050B16] border-2 border-cyan-400 rounded-2xl max-w-2xl w-[94vw] sm:w-full p-4 sm:p-6 relative shadow-[0_0_50px_rgba(0,217,255,0.4)] font-mono max-h-[90vh] overflow-y-auto">
+            <button onclick="closeReportModal()" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-white text-base sm:text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center space-x-3 text-cyan-400 mb-3 sm:mb-4 border-b border-slate-800 pb-3">
+                <i class="fa-solid fa-file-shield text-xl sm:text-2xl"></i>
+                <div>
+                    <h3 class="text-sm sm:text-base font-bold text-white tracking-wider" id="report-modal-title">DEFENSE BRIEFING & EVIDENCE DOCKET</h3>
+                    <p class="text-[10px] sm:text-xs text-slate-400">SIH26143 / Indian Coast Guard Official Case File</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 my-3 sm:my-4 text-xs text-slate-300 leading-relaxed font-sans bg-slate-950/80 p-3 sm:p-4 rounded-xl border border-slate-800">
+                <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-2 font-mono text-[10px] sm:text-[11px] gap-1">
+                    <span class="text-cyan-400 font-bold">CASE: SIH26143-SPILL-089-AS</span>
+                    <span class="text-slate-400">CONFIDENTIAL / MARITIME DEFENSE</span>
+                </div>
+                <p><strong class="text-white font-mono">Offending Vessel:</strong> MV OCEAN PATRIOT (IMO: 9482103 | Flag: Panama VLCC)</p>
+                <p><strong class="text-white font-mono">Location:</strong> 15.421° N, 71.892° E (Arabian Sea, 85 nm West of Goa)</p>
+                <p><strong class="text-white font-mono">SAR Evidence:</strong> Sentinel-1B C-Band slick match (18.4 km²), speed drop from 16.4 kts to 3.1 kts at 02:14 UTC, UNet back-trace 95% confidence.</p>
+                <p class="text-emerald-400 font-mono"><i class="fa-solid fa-circle-check"></i> Digital Hash Signed & Transmitted to INS Sarathi Patrol Intercept Commander.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-2">
+                <button onclick="window.print()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-[0_0_15px_#00D9FF]">
+                    <i class="fa-solid fa-print"></i>
+                    <span>PRINT BRIEFING</span>
+                </button>
+                <button onclick="closeReportModal()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-xs font-bold">
+                    DONE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet Map JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Clock Ticker
         function updateClock() {
             const now = new Date();
             const utcString = now.toUTCString().split(' ')[4] + ' UTC';
@@ -511,30 +637,110 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // Mobile Hamburger Drawer Toggle
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobile-nav-drawer');
+            if (drawer) {
+                drawer.classList.toggle('hidden');
+            }
+        }
+
+        // Leaflet Map Init
         let map;
         function initMap() {
+            const container = document.getElementById('command-map');
+            if (!container) return;
+
             map = L.map('command-map', { center: [15.421, 71.892], zoom: 7, zoomControl: false });
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
             
             L.polygon([[15.45, 71.85], [15.48, 71.92], [15.42, 71.98], [15.38, 71.94]], {
                 color: '#FF4D4D', fillColor: '#FF4D4D', fillOpacity: 0.55, weight: 3
-            }).addTo(map).bindPopup('SPILL-2026-089-AS: 18.4 km²');
+            }).addTo(map).bindPopup('<div class="font-mono text-xs"><strong class="text-rose-400">SPILL-2026-089-AS</strong><br>18.4 km² | Critical</div>');
 
             const suspectIcon = L.divIcon({
                 html: '<i class="fa-solid fa-ship text-rose-400 text-xl"></i>',
                 iconSize: [24, 24]
             });
-            L.marker([15.440, 71.870], { icon: suspectIcon }).addTo(map).bindPopup('MV OCEAN PATRIOT (95% Match)');
+            L.marker([15.440, 71.870], { icon: suspectIcon }).addTo(map).bindPopup('<div class="font-mono text-xs"><strong class="text-rose-400">MV OCEAN PATRIOT</strong><br>95% AI Offender Match</div>');
         }
 
         function centerMapOnGoa() { if (map) map.setView([15.421, 71.892], 8); }
-        function triggerLiveScan() { document.getElementById('scan-modal').classList.remove('hidden'); }
-        function closeScanModal() { document.getElementById('scan-modal').classList.add('hidden'); }
-        function openReportModal() { alert('Generating Defense PDF Briefing...'); }
-        function dispatchCoastGuard(name) { alert('Coast Guard Intercept notice dispatched for ' + name); }
 
-        // Dynamic Tab Switching Module Filter
+        // Start Live Monitoring Radar Scan Trigger
+        function triggerLiveScan() {
+            const modal = document.getElementById('scan-modal');
+            const progressBar = document.getElementById('scan-progress-bar');
+            const percentText = document.getElementById('scan-percent');
+            const stepLabel = document.getElementById('scan-step-label');
+            const terminal = document.getElementById('scan-terminal');
+
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            if (progressBar) progressBar.style.width = '0%';
+            if (percentText) percentText.innerText = '0%';
+            if (terminal) terminal.innerHTML = '<p class="text-cyan-400">[02:22:01 UTC] Connecting to ISRO Telemetry Ground Station...</p>';
+
+            let progress = 0;
+            const steps = [
+                'Acquiring Sentinel-1B SAR C-Band Radar Pass...',
+                'Filtering Ocean Wave Noise...',
+                'Running UNet Neural Segmentation Inference...',
+                'Correlate AIS Trajectory Database...',
+                'MATCH CONFIRMED: MV OCEAN PATRIOT (95%)'
+            ];
+
+            const interval = setInterval(() => {
+                progress += 20;
+                if (progressBar) progressBar.style.width = progress + '%';
+                if (percentText) percentText.innerText = progress + '%';
+                
+                const stepIdx = Math.min(Math.floor(progress / 25), steps.length - 1);
+                if (stepLabel) stepLabel.innerText = steps[stepIdx];
+                
+                if (terminal) {
+                    const p = document.createElement('p');
+                    p.className = 'text-slate-300';
+                    p.innerText = `[${new Date().toISOString().split('T')[1].slice(0,8)} UTC] ${steps[stepIdx]}`;
+                    terminal.appendChild(p);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        function closeScanModal() {
+            document.getElementById('scan-modal')?.classList.add('hidden');
+        }
+
+        // Analyze Incident / Evidence Report Modal Trigger
+        function openReportModal() {
+            const modal = document.getElementById('report-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal')?.classList.add('hidden');
+        }
+
+        function dispatchCoastGuard(vesselName) {
+            alert('🚨 COAST GUARD INTERCEPT NOTICE ISSUED!\n\nTarget Vessel: ' + vesselName + '\nPatrol Vessel INS Sarathi dispatched to Sector 4.');
+        }
+
+        function toggleAlertModal() {
+            openReportModal();
+        }
+
+        // Dynamic Module Tab Filtering & View Switcher
         function switchTab(tabId) {
+            // Close mobile menu drawer if open
+            const drawer = document.getElementById('mobile-nav-drawer');
+            if (drawer) drawer.classList.add('hidden');
+
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             const activeBtn = document.getElementById('nav-' + tabId);
             if (activeBtn) activeBtn.classList.add('active');
@@ -551,7 +757,6 @@
                 if (targetSec) targetSec.classList.remove('hidden-view');
                 if (activeLabel) activeLabel.innerText = 'FILTERED VIEW: ' + tabId.toUpperCase() + ' MODULE';
                 
-                // Keep KPIs visible on filtered views for context
                 const kpisSec = document.getElementById('sec-kpis');
                 if (kpisSec) kpisSec.classList.remove('hidden-view');
             }
